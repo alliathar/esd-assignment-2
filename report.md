@@ -85,8 +85,9 @@ PASS unknown booking: HTTP 404 documented; body matches #/components/schemas/Err
 4/4 checks passed
 ```
 
-- **Inspection:** the same document drives Swagger UI at <http://localhost:8000/docs>.
-  *Screenshot: `evidence/a2/swagger-create-booking.png`, showing "Try it out" on `POST /v1/bookings`.*
+- **Inspection:** the same document drives Swagger UI at <http://localhost:8000/docs>. Using "Try it out" on `POST /v1/bookings` returned `201` with the `location` and `ratelimit-*` headers, and the spec lists each documented error response:
+
+![Swagger UI: POST /v1/bookings, Try it out](evidence/a2/swagger-create-booking.png)
 
 ### A.4 Idempotency (safe repeats)
 
@@ -275,7 +276,9 @@ room-booking-grpc  compare-2fb21e-grpc-conflict   booking rejected because room 
 room-booking-grpc  compare-2fb21e-grpc-conflict   rpc completed ALREADY_EXISTS
 ```
 
-*Screenshot: `evidence/a2/kibana-grpc-request-id.png`, showing a search for one gRPC request ID.*
+The same search in Kibana Discover (`request_id:compare-3bb112*`) shows HTTP and gRPC logs side by side, each carrying the request ID its client sent:
+
+![Kibana: one comparison run across both services](evidence/a2/kibana-grpc-request-id.png)
 
 **Deadline finding:**
 - **The problem:** with a 1.5 s delay injected and a 1 s client deadline, the first version of the handler kept working after the client had given up. It stored the booking and recorded `OK`, while the client saw `DEADLINE_EXCEEDED`.
@@ -361,9 +364,15 @@ python -m clients.rate_limit_demo                         # 429s
 - gRPC p50 ≈ 13.2 ms. gRPC p95 was 2.2 s, raised by the deadline demo's 1.5 s injected delays inside the 5-minute window.
 - gRPC codes seen: `OK`, `ALREADY_EXISTS`, `INVALID_ARGUMENT`, `FAILED_PRECONDITION`, `DEADLINE_EXCEEDED`.
 
+**In-flight test:** just before the dashboard capture, a 4 s delay was injected and six gRPC calls (8 s deadline) were sent at the same time. Prometheus recorded `max_over_time(sum(room_booking_grpc_server_in_flight)[2m:2s]) = 6`. The same slow calls cause the gRPC p95 spike at the right of the latency panel. Afterwards the fault was removed.
+
 **Dashboard evidence:**
-- *Screenshot `evidence/a2/prometheus-targets.png`: four targets UP.*
-- *Screenshot `evidence/a2/grafana-http-vs-grpc.png`: the new row after the traffic commands above.*
+
+![Prometheus: four targets UP](evidence/a2/prometheus-targets.png)
+
+![Grafana: Create booking, HTTP vs gRPC](evidence/a2/grafana-http-vs-grpc.png)
+
+The full dashboard, including the A1 panels, is in `evidence/a2/grafana-full-dashboard.png`.
 
 ---
 

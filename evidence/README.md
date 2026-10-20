@@ -23,5 +23,7 @@ Use a visible time range and include panel titles or query text in each capture.
 - `grpc-client-demo.txt`: repeatable gRPC successes and failures used to fill the Grafana row.
 - `grpc-deadline-demo.txt`: four overlapping slow calls (in-flight = 4) ending in `DEADLINE_EXCEEDED`.
 - `openapi-validation.txt`, `openapi-contract-check.txt`: spec validation and live responses checked against it.
-- Still to capture: `swagger-create-booking.png`, `prometheus-targets.png`,
-  `grafana-http-vs-grpc.png`, `kibana-grpc-request-id.png`.
+- `swagger-create-booking.png`: Swagger "Try it out" on `POST /v1/bookings` (201 + headers).
+- `prometheus-targets.png`: four scrape targets UP, including `room-booking-grpc`.
+- `grafana-http-vs-grpc.png`, `grafana-full-dashboard.png`: the HTTP vs gRPC row and the whole dashboard.
+- `kibana-grpc-request-id.png`: one comparison run's request IDs across both services.
