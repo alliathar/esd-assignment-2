@@ -1,0 +1,21 @@
+-- round 1/3 --
+success                -> OK booking=a3db56a8-4056-497e-8607-ff8f587cdce8 room=gRPC-9f7dc2-1 duration=60 request_id=grpc-89e75be1-a265-48ca-879d-f14839d349a6
+success                -> OK booking=9f98e104-b14b-4ba0-a614-93ca95077de2 room=gRPC-9f7dc2-2 duration=90 request_id=grpc-19b28741-47a5-44ff-a698-7863e2cb9386
+idempotent repeat      -> OK booking=a3db56a8-4056-497e-8607-ff8f587cdce8 room=gRPC-9f7dc2-1 duration=60 (replayed) request_id=grpc-636a093d-21ff-4974-a4d3-7cff27e9008e
+room occupied          -> ALREADY_EXISTS: Room already has an active booking request_id=grpc-6338f7c1-8a90-491a-90e4-239b951b88dd
+invalid duration       -> INVALID_ARGUMENT: Booking request is invalid (duration_minutes: must be between 15 and 180 minutes) request_id=grpc-cbb2b461-9353-4a71-892b-0c2c108ed905
+key reused, new body   -> FAILED_PRECONDITION: Idempotency key was already used with a different request body request_id=grpc-4f77f437-b21c-4a9c-92e1-2240bf5f6abb
+-- round 2/3 --
+success                -> OK booking=a84ebfd1-d47a-4c2c-89db-d3ec582a34be room=gRPC-79c457-1 duration=60 request_id=grpc-4b9726ad-1a21-4ed8-8fba-0ff82dd45d69
+success                -> OK booking=9c62bdaa-22a6-4b67-bd69-22566ce8d684 room=gRPC-79c457-2 duration=90 request_id=grpc-239d52af-6fa3-4d56-9155-12b909bd6eff
+idempotent repeat      -> OK booking=a84ebfd1-d47a-4c2c-89db-d3ec582a34be room=gRPC-79c457-1 duration=60 (replayed) request_id=grpc-b8093f0d-e5f6-44a2-b36f-d9e3fa4220dd
+room occupied          -> ALREADY_EXISTS: Room already has an active booking request_id=grpc-7455873b-ea80-4555-a1d0-84f9bc890ac2
+invalid duration       -> INVALID_ARGUMENT: Booking request is invalid (duration_minutes: must be between 15 and 180 minutes) request_id=grpc-404c961f-3ac6-440d-a23e-32058f6479d5
+key reused, new body   -> FAILED_PRECONDITION: Idempotency key was already used with a different request body request_id=grpc-0cbf0a66-7cae-4f8e-8cd8-f5d0daae466f
+-- round 3/3 --
+success                -> OK booking=cb8c92d3-6f4b-4f32-b1d6-5d24e6348f0b room=gRPC-e6f44c-1 duration=60 request_id=grpc-9cd5d424-a4cf-4e52-8d60-243dae11ab16
+success                -> OK booking=4678c54b-d376-414f-ba92-73f0b34a75b4 room=gRPC-e6f44c-2 duration=90 request_id=grpc-5cf62d0f-5d17-4016-bdd5-1c530341278e
+idempotent repeat      -> OK booking=cb8c92d3-6f4b-4f32-b1d6-5d24e6348f0b room=gRPC-e6f44c-1 duration=60 (replayed) request_id=grpc-b3545805-cec6-477d-8da9-d4ceeb4b5449
+room occupied          -> ALREADY_EXISTS: Room already has an active booking request_id=grpc-1744b116-bfc7-46fd-a472-a274f39ec888
+invalid duration       -> INVALID_ARGUMENT: Booking request is invalid (duration_minutes: must be between 15 and 180 minutes) request_id=grpc-b951a46f-fc1a-4b1d-a519-604678cf470d
+key reused, new body   -> FAILED_PRECONDITION: Idempotency key was already used with a different request body request_id=grpc-39983ba3-6092-46ef-a31f-8595453f824e

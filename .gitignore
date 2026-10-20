@@ -3,4 +3,7 @@ __pycache__/
 .env
 .vscode/
 data/
-*.log
+*.log.pytest_cache/
+*.db
+*.db-wal
+*.db-shm

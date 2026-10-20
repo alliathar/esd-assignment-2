@@ -1,11 +1,17 @@
 services:
   room-booking-api:
     build: .
+    image: room-booking:a2
     container_name: room-booking-api
     ports:
       - "8000:8000"
     environment:
       CARDINALITY_MODE: ${CARDINALITY_MODE:-safe}
+      BOOKING_DB_PATH: /data/bookings.db
+      RATE_LIMIT_REQUESTS: "30"
+      RATE_LIMIT_WINDOW_SECONDS: "10"
+    volumes:
+      - booking-data:/data
     labels:
       co.elastic.logs/enabled: "true"
     healthcheck:
@@ -15,6 +21,43 @@ services:
           "python",
           "-c",
           "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 5s
+    restart: unless-stopped
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # Same image, different process: the gRPC version of create-booking.
+  # It shares the booking-data volume (one SQLite database) with the HTTP API.
+  room-booking-grpc:
+    build: .
+    image: room-booking:a2
+    container_name: room-booking-grpc
+    command: ["python", "-m", "grpc_service.server"]
+    ports:
+      - "50051:50051"
+      - "9102:9102"
+    environment:
+      BOOKING_DB_PATH: /data/bookings.db
+      GRPC_PORT: "50051"
+      METRICS_PORT: "9102"
+    volumes:
+      - booking-data:/data
+    labels:
+      co.elastic.logs/enabled: "true"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import socket; socket.create_connection(('localhost', 50051), 2)"
         ]
       interval: 5s
       timeout: 3s
@@ -41,6 +84,8 @@ services:
       - "--storage.tsdb.retention.time=7d"
     depends_on:
       room-booking-api:
+        condition: service_healthy
+      room-booking-grpc:
         condition: service_healthy
       node-exporter:
         condition: service_started
@@ -126,6 +171,7 @@ services:
     restart: unless-stopped
 
 volumes:
+  booking-data:
   prometheus-data:
   grafana-data:
   elasticsearch-data:

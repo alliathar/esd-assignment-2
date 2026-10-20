@@ -1,0 +1,6 @@
+server gauge during the calls:
+room_booking_grpc_server_in_flight{grpc_method="CreateBooking",grpc_service="roombooking.v1.BookingService"} 4.0
+DEADLINE_EXCEEDED: Stream removed (Deadline Exceeded) request_id=deadline-demo-v2-1
+DEADLINE_EXCEEDED: Stream removed (Deadline Exceeded) request_id=deadline-demo-v2-2
+DEADLINE_EXCEEDED: Stream removed (Deadline Exceeded) request_id=deadline-demo-v2-3
+DEADLINE_EXCEEDED: Stream removed (Deadline Exceeded) request_id=deadline-demo-v2-4

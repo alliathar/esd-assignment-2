@@ -1,0 +1,36 @@
+[16:05:03.642] request  1: 201 Created   RateLimit-Remaining=29 (limit 30)
+[16:05:03.668] request  2: 201 Created   RateLimit-Remaining=28 (limit 30)
+[16:05:03.708] request  3: 201 Created   RateLimit-Remaining=27 (limit 30)
+[16:05:03.733] request  4: 201 Created   RateLimit-Remaining=26 (limit 30)
+[16:05:03.759] request  5: 201 Created   RateLimit-Remaining=25 (limit 30)
+[16:05:03.787] request  6: 201 Created   RateLimit-Remaining=24 (limit 30)
+[16:05:03.812] request  7: 201 Created   RateLimit-Remaining=23 (limit 30)
+[16:05:03.851] request  8: 201 Created   RateLimit-Remaining=22 (limit 30)
+[16:05:03.879] request  9: 201 Created   RateLimit-Remaining=21 (limit 30)
+[16:05:03.909] request 10: 201 Created   RateLimit-Remaining=20 (limit 30)
+[16:05:03.936] request 11: 201 Created   RateLimit-Remaining=19 (limit 30)
+[16:05:03.964] request 12: 201 Created   RateLimit-Remaining=18 (limit 30)
+[16:05:03.992] request 13: 201 Created   RateLimit-Remaining=17 (limit 30)
+[16:05:04.021] request 14: 201 Created   RateLimit-Remaining=16 (limit 30)
+[16:05:04.057] request 15: 201 Created   RateLimit-Remaining=15 (limit 30)
+[16:05:04.083] request 16: 201 Created   RateLimit-Remaining=14 (limit 30)
+[16:05:04.108] request 17: 201 Created   RateLimit-Remaining=13 (limit 30)
+[16:05:04.135] request 18: 201 Created   RateLimit-Remaining=12 (limit 30)
+[16:05:04.161] request 19: 201 Created   RateLimit-Remaining=11 (limit 30)
+[16:05:04.186] request 20: 201 Created   RateLimit-Remaining=10 (limit 30)
+[16:05:04.230] request 21: 201 Created   RateLimit-Remaining=9 (limit 30)
+[16:05:04.261] request 22: 201 Created   RateLimit-Remaining=8 (limit 30)
+[16:05:04.289] request 23: 201 Created   RateLimit-Remaining=7 (limit 30)
+[16:05:04.318] request 24: 201 Created   RateLimit-Remaining=6 (limit 30)
+[16:05:04.353] request 25: 201 Created   RateLimit-Remaining=5 (limit 30)
+[16:05:04.378] request 26: 201 Created   RateLimit-Remaining=4 (limit 30)
+[16:05:04.404] request 27: 201 Created   RateLimit-Remaining=3 (limit 30)
+[16:05:04.432] request 28: 201 Created   RateLimit-Remaining=2 (limit 30)
+[16:05:04.459] request 29: 201 Created   RateLimit-Remaining=1 (limit 30)
+[16:05:04.483] request 30: 201 Created   RateLimit-Remaining=0 (limit 30)
+[16:05:04.494] request 31: 429 Too Many Requests  Retry-After=10  body=Limit of 30 requests per 10 seconds reached; retry after 10 seconds
+[16:05:04.504] request 32: 429 Too Many Requests  Retry-After=10  body=Limit of 30 requests per 10 seconds reached; retry after 10 seconds
+[16:05:04.516] request 33: 429 Too Many Requests  Retry-After=10  body=Limit of 30 requests per 10 seconds reached; retry after 10 seconds
+[16:05:04.516] waiting Retry-After = 10s ...
+[16:05:14.548] after waiting: HTTP 201  RateLimit-Remaining=29
+[16:05:15.343] cleaned up 31 demo bookings

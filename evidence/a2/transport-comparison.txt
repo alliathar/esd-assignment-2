@@ -1,0 +1,15 @@
+[16:04:30.577] == Success ==
+[16:04:30.578] HTTP http-success     room=Compare-2fb21e-HTTP duration=60
+[16:04:30.823]      -> HTTP 201 {"id": "f84f88df-583b-41ed-8eb2-6c28e06d908f", "room": "Compare-2fb21e-HTTP", "duration_minutes": 60, "created_at": "2026-10-20T11:04:30.807944+00:00"} X-Request-ID=compare-2fb21e-http-success
+[16:04:30.823] gRPC grpc-success     room=Compare-2fb21e-gRPC duration=60
+[16:04:30.915]      -> OK booking=7e8d2825-b084-4be2-afeb-669985f18022 room=Compare-2fb21e-gRPC duration=60 request_id=compare-2fb21e-grpc-success
+[16:04:30.916] == Invalid input (duration 5) ==
+[16:04:30.917] HTTP http-invalid     room=Compare-2fb21e-HTTP-x duration=5
+[16:04:30.935]      -> HTTP 422 {"error": {"code": "validation_error", "message": "Request is invalid", "request_id": "compare-2fb21e-http-invalid", "details": [{"field": "duration_minutes", "message": "Input should be greater than or equal to 15"}]}} X-Request-ID=compare-2fb21e-http-invalid
+[16:04:30.935] gRPC grpc-invalid     room=Compare-2fb21e-gRPC-x duration=5
+[16:04:30.942]      -> INVALID_ARGUMENT: Booking request is invalid (duration_minutes: must be between 15 and 180 minutes) request_id=compare-2fb21e-grpc-invalid
+[16:04:30.943] == Same room through the other transport (shared database) ==
+[16:04:30.943] HTTP http-conflict    room=Compare-2fb21e-gRPC duration=60
+[16:04:30.962]      -> HTTP 409 {"error": {"code": "room_occupied", "message": "Room already has an active booking", "request_id": "compare-2fb21e-http-conflict", "details": []}} X-Request-ID=compare-2fb21e-http-conflict
+[16:04:30.962] gRPC grpc-conflict    room=Compare-2fb21e-HTTP duration=60
+[16:04:30.972]      -> ALREADY_EXISTS: Room already has an active booking request_id=compare-2fb21e-grpc-conflict

@@ -33,11 +33,13 @@ def call_api(base_url, method, path, payload=None):
 
 
 def set_slow_fault(base_url, enabled):
-    value = "true" if enabled else "false"
+    # A1 fault: 500 ms delay on every fifth create request.
+    fault = {"delay_ms": 500, "every_nth": 5} if enabled else {}
     status, _ = call_api(
         base_url,
-        "POST",
-        f"/fault/slow?enabled={value}",
+        "PUT",
+        "/v1/admin/faults/create-booking",
+        fault,
     )
     if status != 200:
         raise RuntimeError(f"Could not set slow fault: HTTP {status}")
@@ -67,7 +69,7 @@ def run_load(base_url, duration, interval, enable_fault):
             status, created = call_api(
                 base_url,
                 "POST",
-                "/bookings",
+                "/v1/bookings",
                 booking,
             )
             results[f"create_{status}"] += 1
@@ -80,7 +82,7 @@ def run_load(base_url, duration, interval, enable_fault):
                 duplicate_status, _ = call_api(
                     base_url,
                     "POST",
-                    "/bookings",
+                    "/v1/bookings",
                     booking,
                 )
                 results[f"duplicate_{duplicate_status}"] += 1
@@ -91,13 +93,13 @@ def run_load(base_url, duration, interval, enable_fault):
                 cancel_status, _ = call_api(
                     base_url,
                     "DELETE",
-                    f"/bookings/{booking_id}",
+                    f"/v1/bookings/{booking_id}",
                 )
                 results[f"cancel_{cancel_status}"] += 1
 
             # Exercise the read endpoint as part of the traffic mix.
             if iteration % 2 == 0:
-                list_status, _ = call_api(base_url, "GET", "/bookings")
+                list_status, _ = call_api(base_url, "GET", "/v1/bookings")
                 results[f"list_{list_status}"] += 1
 
             if iteration % 10 == 0:

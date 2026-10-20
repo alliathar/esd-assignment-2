@@ -1,0 +1,383 @@
+openapi: 3.1.0
+info:
+  title: Campus Room Booking API
+  description: Create, list, inspect, and cancel campus study-room bookings. All errors
+    use the ErrorResponse format.
+  version: 2.0.0
+paths:
+  /health:
+    get:
+      summary: Health
+      operationId: health_health_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+  /v1/bookings:
+    get:
+      summary: List Bookings
+      operationId: list_bookings_v1_bookings_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BookingList'
+    post:
+      summary: Create Booking
+      operationId: create_booking_v1_bookings_post
+      parameters:
+      - name: Idempotency-Key
+        in: header
+        required: false
+        schema:
+          anyOf:
+          - type: string
+            maxLength: 100
+          - type: 'null'
+          description: Client-chosen unique key. Repeating a request with the same
+            key and body returns the original booking instead of creating another.
+          title: Idempotency-Key
+        description: Client-chosen unique key. Repeating a request with the same key
+          and body returns the original booking instead of creating another.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BookingRequest'
+      responses:
+        '201':
+          description: 'Booking created, or the stored booking returned again for
+            a repeated Idempotency-Key (then Idempotent-Replayed: true).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+          headers:
+            Location:
+              description: URL of the booking
+              schema:
+                type: string
+        '409':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Conflict
+        '422':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Unprocessable Content
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Too Many Requests
+        '503':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Service Unavailable
+  /v1/bookings/{booking_id}:
+    get:
+      summary: Get Booking
+      operationId: get_booking_v1_bookings__booking_id__get
+      parameters:
+      - name: booking_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Booking Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Booking'
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+    delete:
+      summary: Cancel Booking
+      operationId: cancel_booking_v1_bookings__booking_id__delete
+      parameters:
+      - name: booking_id
+        in: path
+        required: true
+        schema:
+          type: string
+          title: Booking Id
+      responses:
+        '204':
+          description: Successful Response
+        '404':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Not Found
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /v1/admin/faults/create-booking:
+    get:
+      summary: Get Create Booking Fault
+      operationId: get_create_booking_fault_v1_admin_faults_create_booking_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaultConfig'
+    put:
+      summary: Configure Create Booking Fault
+      description: 'Replace the fault settings for create-booking (HTTP and gRPC).
+
+
+        Send all-default values (`{}`) to remove the fault.'
+      operationId: configure_create_booking_fault_v1_admin_faults_create_booking_put
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaultConfig'
+        required: true
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FaultConfig'
+        '422':
+          description: Unprocessable Content
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /demo/cardinality:
+    post:
+      summary: Cardinality Demo
+      operationId: cardinality_demo_demo_cardinality_post
+      parameters:
+      - name: request_id
+        in: query
+        required: true
+        schema:
+          type: string
+          title: Request Id
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+        '429':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+          description: Too Many Requests
+        '422':
+          description: Validation Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPValidationError'
+  /metrics:
+    get:
+      summary: Metrics
+      operationId: metrics_metrics_get
+      responses:
+        '200':
+          description: Successful Response
+          content:
+            application/json:
+              schema: {}
+components:
+  schemas:
+    Booking:
+      properties:
+        id:
+          type: string
+          title: Id
+        room:
+          type: string
+          title: Room
+        duration_minutes:
+          type: integer
+          title: Duration Minutes
+        created_at:
+          type: string
+          title: Created At
+      type: object
+      required:
+      - id
+      - room
+      - duration_minutes
+      - created_at
+      title: Booking
+    BookingList:
+      properties:
+        bookings:
+          items:
+            $ref: '#/components/schemas/Booking'
+          type: array
+          title: Bookings
+      type: object
+      required:
+      - bookings
+      title: BookingList
+    BookingRequest:
+      properties:
+        room:
+          type: string
+          maxLength: 30
+          minLength: 1
+          title: Room
+          examples:
+          - Study-Room-101
+        duration_minutes:
+          type: integer
+          maximum: 180.0
+          minimum: 15.0
+          title: Duration Minutes
+          examples:
+          - 60
+      additionalProperties: false
+      type: object
+      required:
+      - room
+      - duration_minutes
+      title: BookingRequest
+    ErrorBody:
+      properties:
+        code:
+          type: string
+          title: Code
+        message:
+          type: string
+          title: Message
+        request_id:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Request Id
+        details:
+          items:
+            $ref: '#/components/schemas/ErrorDetail'
+          type: array
+          title: Details
+          default: []
+      type: object
+      required:
+      - code
+      - message
+      title: ErrorBody
+    ErrorDetail:
+      properties:
+        field:
+          anyOf:
+          - type: string
+          - type: 'null'
+          title: Field
+        message:
+          type: string
+          title: Message
+      type: object
+      required:
+      - message
+      title: ErrorDetail
+    ErrorResponse:
+      properties:
+        error:
+          $ref: '#/components/schemas/ErrorBody'
+      type: object
+      required:
+      - error
+      title: ErrorResponse
+    FaultConfig:
+      properties:
+        delay_ms:
+          type: integer
+          maximum: 10000.0
+          minimum: 0.0
+          title: Delay Ms
+          default: 0
+        every_nth:
+          type: integer
+          maximum: 100.0
+          minimum: 1.0
+          title: Every Nth
+          default: 1
+        fail_next:
+          type: integer
+          maximum: 100.0
+          minimum: 0.0
+          title: Fail Next
+          default: 0
+        fail_always:
+          type: boolean
+          title: Fail Always
+          default: false
+      additionalProperties: false
+      type: object
+      title: FaultConfig
+    HTTPValidationError:
+      properties:
+        detail:
+          items:
+            $ref: '#/components/schemas/ValidationError'
+          type: array
+          title: Detail
+      type: object
+      title: HTTPValidationError
+    ValidationError:
+      properties:
+        loc:
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+          type: array
+          title: Location
+        msg:
+          type: string
+          title: Message
+        type:
+          type: string
+          title: Error Type
+        input:
+          title: Input
+        ctx:
+          type: object
+          title: Context
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      title: ValidationError

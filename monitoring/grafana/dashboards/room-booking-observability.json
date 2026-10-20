@@ -3,7 +3,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": {"type": "grafana", "uid": "-- Grafana --"},
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
@@ -18,179 +21,1226 @@
   "links": [],
   "panels": [
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": {
+            "mode": "thresholds"
+          },
           "mappings": [],
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
           "unit": "short"
         },
         "overrides": []
       },
-      "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+      "gridPos": {
+        "h": 5,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "room_booking_active_bookings", "instant": true, "legendFormat": "Active", "range": false, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "room_booking_active_bookings",
+          "instant": true,
+          "legendFormat": "Active",
+          "range": false,
+          "refId": "A"
+        }
       ],
       "title": "Active Bookings",
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "continuous-GrYlRd"}, "unit": "short"}, "overrides": []},
-      "gridPos": {"h": 5, "w": 10, "x": 6, "y": 0},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "continuous-GrYlRd"
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 10,
+        "x": 6,
+        "y": 0
+      },
       "id": 2,
       "options": {
         "displayMode": "gradient",
         "minVizHeight": 10,
         "minVizWidth": 0,
         "orientation": "horizontal",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "showUnfilled": true,
         "valueMode": "color"
       },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "sum by (action, result) (room_booking_events_total)", "instant": true, "legendFormat": "{{action}} - {{result}}", "range": false, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (action, result) (room_booking_events_total)",
+          "instant": true,
+          "legendFormat": "{{action}} - {{result}}",
+          "range": false,
+          "refId": "A"
+        }
       ],
       "title": "Booking Events by Outcome",
       "type": "bargauge"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Self-explored business chart: percentage of booking events rejected over the last five minutes.",
       "fieldConfig": {
         "defaults": {
-          "color": {"mode": "thresholds"},
+          "color": {
+            "mode": "thresholds"
+          },
           "max": 100,
           "min": 0,
-          "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 10}, {"color": "red", "value": 25}]},
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 25
+              }
+            ]
+          },
           "unit": "percent"
         },
         "overrides": []
       },
-      "gridPos": {"h": 5, "w": 8, "x": 16, "y": 0},
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
       "id": 3,
       "options": {
         "colorMode": "value",
         "graphMode": "area",
         "justifyMode": "auto",
         "orientation": "auto",
-        "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false},
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
         "textMode": "auto"
       },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "100 * (sum(rate(room_booking_events_total{result=\"rejected\"}[5m])) or vector(0)) / clamp_min((sum(rate(room_booking_events_total[5m])) or vector(0)), 0.000001)", "instant": true, "legendFormat": "Rejected", "range": false, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (sum(rate(room_booking_events_total{result=\"rejected\"}[5m])) or vector(0)) / clamp_min((sum(rate(room_booking_events_total[5m])) or vector(0)), 0.000001)",
+          "instant": true,
+          "legendFormat": "Rejected",
+          "range": false,
+          "refId": "A"
+        }
       ],
       "title": "Booking Rejection Rate (Explored Metric)",
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "drawStyle": "line", "fillOpacity": 15, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false}, "min": 0, "unit": "reqps"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 12, "x": 0, "y": 5},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 5
+      },
       "id": 4,
-      "options": {"legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "sum by (status) (rate(room_booking_http_requests_total{route!~\"/metrics|/health\"}[1m]))", "legendFormat": "HTTP {{status}}", "range": true, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (status) (rate(room_booking_http_requests_total{route!~\"/metrics|/health\"}[1m]))",
+          "legendFormat": "HTTP {{status}}",
+          "range": true,
+          "refId": "A"
+        }
       ],
       "title": "HTTP Request Rate by Status",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Estimated p95 from histogram buckets over a five-minute rate window.",
-      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "drawStyle": "line", "fillOpacity": 15, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false}, "min": 0, "unit": "s"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 12, "x": 12, "y": 5},
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 5
+      },
       "id": 5,
-      "options": {"legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "single", "sort": "none"}},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "histogram_quantile(0.95, sum by (le) (rate(room_booking_http_request_duration_seconds_bucket{route=\"/bookings\",method=\"POST\"}[5m])))", "legendFormat": "p95 POST booking", "range": true, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(room_booking_http_request_duration_seconds_bucket{route=\"/v1/bookings\",method=\"POST\"}[5m])))",
+          "legendFormat": "p95 POST booking",
+          "range": true,
+          "refId": "A"
+        }
       ],
       "title": "p95 Booking Request Latency (5m window)",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
       "description": "Python Summary exposes sum and count, so this panel calculates the lifetime mean rather than a percentile.",
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}]}, "unit": "s"}, "overrides": []},
-      "gridPos": {"h": 5, "w": 8, "x": 0, "y": 13},
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 8,
+        "x": 0,
+        "y": 13
+      },
       "id": 6,
-      "options": {"colorMode": "value", "graphMode": "area", "justifyMode": "auto", "orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "textMode": "auto"},
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "room_booking_validation_duration_seconds_sum / clamp_min(room_booking_validation_duration_seconds_count, 1)", "instant": true, "legendFormat": "Average", "range": false, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "room_booking_validation_duration_seconds_sum / clamp_min(room_booking_validation_duration_seconds_count, 1)",
+          "instant": true,
+          "legendFormat": "Average",
+          "range": false,
+          "refId": "A"
+        }
       ],
       "title": "Average Booking Validation Time",
       "type": "stat"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "drawStyle": "line", "fillOpacity": 15, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false}, "max": 100, "min": 0, "unit": "percent"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 8, "y": 13},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "max": 100,
+          "min": 0,
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 8,
+        "y": 13
+      },
       "id": 7,
-      "options": {"legend": {"calcs": ["lastNotNull"], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "single", "sort": "none"}},
+      "options": {
+        "legend": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[5m])))", "legendFormat": "CPU", "range": true, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - avg(rate(node_cpu_seconds_total{job=\"node-exporter\",mode=\"idle\"}[5m])))",
+          "legendFormat": "CPU",
+          "range": true,
+          "refId": "A"
+        }
       ],
       "title": "Docker Desktop Linux VM — CPU Usage",
       "type": "timeseries"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 16, "y": 13},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 16,
+        "y": 13
+      },
       "id": 8,
-      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})", "instant": true, "legendFormat": "Memory", "range": false, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - node_memory_MemAvailable_bytes{job=\"node-exporter\"} / node_memory_MemTotal_bytes{job=\"node-exporter\"})",
+          "instant": true,
+          "legendFormat": "Memory",
+          "range": false,
+          "refId": "A"
+        }
       ],
       "title": "Docker Desktop Linux VM — Memory Usage",
       "type": "gauge"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "thresholds"}, "max": 100, "min": 0, "thresholds": {"mode": "absolute", "steps": [{"color": "green", "value": null}, {"color": "yellow", "value": 75}, {"color": "red", "value": 90}]}, "unit": "percent"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 8, "x": 0, "y": 21},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "max": 100,
+          "min": 0,
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          },
+          "unit": "percent"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 8,
+        "x": 0,
+        "y": 21
+      },
       "id": 9,
-      "options": {"orientation": "auto", "reduceOptions": {"calcs": ["lastNotNull"], "fields": "", "values": false}, "showThresholdLabels": false, "showThresholdMarkers": true},
+      "options": {
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "100 * (1 - node_filesystem_avail_bytes{job=\"node-exporter\",mountpoint=\"/var/lib\"} / node_filesystem_size_bytes{job=\"node-exporter\",mountpoint=\"/var/lib\"})", "instant": true, "legendFormat": "Disk", "range": false, "refId": "A"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (1 - node_filesystem_avail_bytes{job=\"node-exporter\",mountpoint=\"/var/lib\"} / node_filesystem_size_bytes{job=\"node-exporter\",mountpoint=\"/var/lib\"})",
+          "instant": true,
+          "legendFormat": "Disk",
+          "range": false,
+          "refId": "A"
+        }
       ],
       "title": "Docker Desktop Linux VM — Disk Usage (/var/lib)",
       "type": "gauge"
     },
     {
-      "datasource": {"type": "prometheus", "uid": "prometheus"},
-      "fieldConfig": {"defaults": {"color": {"mode": "palette-classic"}, "custom": {"axisCenteredZero": false, "drawStyle": "line", "fillOpacity": 15, "lineInterpolation": "linear", "lineWidth": 2, "pointSize": 5, "showPoints": "never", "spanNulls": false}, "min": 0, "unit": "Bps"}, "overrides": []},
-      "gridPos": {"h": 8, "w": 16, "x": 8, "y": 21},
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "Bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 16,
+        "x": 8,
+        "y": 21
+      },
       "id": 10,
-      "options": {"legend": {"calcs": [], "displayMode": "list", "placement": "bottom", "showLegend": true}, "tooltip": {"mode": "multi", "sort": "none"}},
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "multi",
+          "sort": "none"
+        }
+      },
       "targets": [
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "sum(rate(node_network_receive_bytes_total{job=\"node-exporter\",device!=\"lo\"}[5m]))", "legendFormat": "Received", "range": true, "refId": "A"},
-        {"datasource": {"type": "prometheus", "uid": "prometheus"}, "editorMode": "code", "expr": "sum(rate(node_network_transmit_bytes_total{job=\"node-exporter\",device!=\"lo\"}[5m]))", "legendFormat": "Sent", "range": true, "refId": "B"}
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(node_network_receive_bytes_total{job=\"node-exporter\",device!=\"lo\"}[5m]))",
+          "legendFormat": "Received",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(rate(node_network_transmit_bytes_total{job=\"node-exporter\",device!=\"lo\"}[5m]))",
+          "legendFormat": "Sent",
+          "range": true,
+          "refId": "B"
+        }
       ],
       "title": "Docker Desktop Linux VM — Network Throughput",
+      "type": "timeseries"
+    },
+    {
+      "type": "row",
+      "title": "Create booking — HTTP (POST /v1/bookings) vs gRPC (BookingService/CreateBooking)",
+      "id": 11,
+      "gridPos": {
+        "x": 0,
+        "y": 29,
+        "w": 24,
+        "h": 1
+      },
+      "collapsed": false,
+      "panels": []
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Requests per second by HTTP status, 1m rate window. Measured by the server middleware.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 30,
+        "w": 12,
+        "h": 8
+      },
+      "id": 12,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (status) (rate(room_booking_http_requests_total{route=\"/v1/bookings\",method=\"POST\"}[1m]))",
+          "legendFormat": "{{status}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "HTTP POST /v1/bookings — calls by status",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "RPCs per second by gRPC status code, 1m rate window. Measured by the server interceptor.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "reqps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 30,
+        "w": 12,
+        "h": 8
+      },
+      "id": 13,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (grpc_method, grpc_code) (rate(room_booking_grpc_server_handled_total{grpc_method=\"CreateBooking\"}[1m]))",
+          "legendFormat": "{{grpc_method}} {{grpc_code}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "gRPC CreateBooking — calls by status code",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Share of calls that did not succeed: HTTP status 4xx/5xx, or gRPC code other than OK. Includes rejected business requests (409 / ALREADY_EXISTS, 422 / INVALID_ARGUMENT).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "percent",
+          "max": 100
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 38,
+        "w": 12,
+        "h": 8
+      },
+      "id": 14,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (sum(rate(room_booking_http_requests_total{route=\"/v1/bookings\",method=\"POST\",status=~\"4..|5..\"}[5m])) or vector(0)) / sum(rate(room_booking_http_requests_total{route=\"/v1/bookings\",method=\"POST\"}[5m]))",
+          "legendFormat": "HTTP",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "100 * (sum(rate(room_booking_grpc_server_handled_total{grpc_method=\"CreateBooking\",grpc_code!=\"OK\"}[5m])) or vector(0)) / sum(rate(room_booking_grpc_server_handled_total{grpc_method=\"CreateBooking\"}[5m]))",
+          "legendFormat": "gRPC",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Create booking error rate (5m window)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Calls currently being handled (gauge). Rises above 1 only when calls overlap, e.g. during a slow fault.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 12,
+        "y": 38,
+        "w": 12,
+        "h": 8
+      },
+      "id": 15,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(room_booking_http_in_flight_requests{route=\"/v1/bookings\",method=\"POST\"}) or vector(0)",
+          "legendFormat": "HTTP",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(room_booking_grpc_server_in_flight{grpc_method=\"CreateBooking\"}) or vector(0)",
+          "legendFormat": "gRPC",
+          "range": true,
+          "refId": "B"
+        }
+      ],
+      "title": "Create booking in-flight calls",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Estimated from histogram buckets over the previous 5 minutes. Both are measured on the server, so they exclude client network time.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "s"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 46,
+        "w": 24,
+        "h": 9
+      },
+      "id": 16,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(room_booking_http_request_duration_seconds_bucket{route=\"/v1/bookings\",method=\"POST\"}[5m])))",
+          "legendFormat": "HTTP p50",
+          "range": true,
+          "refId": "A"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(room_booking_http_request_duration_seconds_bucket{route=\"/v1/bookings\",method=\"POST\"}[5m])))",
+          "legendFormat": "HTTP p95",
+          "range": true,
+          "refId": "B"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.50, sum by (le) (rate(room_booking_grpc_server_handling_seconds_bucket{grpc_method=\"CreateBooking\"}[5m])))",
+          "legendFormat": "gRPC p50",
+          "range": true,
+          "refId": "C"
+        },
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "histogram_quantile(0.95, sum by (le) (rate(room_booking_grpc_server_handling_seconds_bucket{grpc_method=\"CreateBooking\"}[5m])))",
+          "legendFormat": "gRPC p95",
+          "range": true,
+          "refId": "D"
+        }
+      ],
+      "title": "Create booking latency p50 / p95 (5m window, server-side)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Business outcomes per service: job=room-booking-api is HTTP, job=room-booking-grpc is gRPC.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 0,
+        "y": 55,
+        "w": 8,
+        "h": 8
+      },
+      "id": 17,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job, result) (increase(room_booking_events_total{action=\"create\"}[5m]))",
+          "legendFormat": "{{job}} {{result}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Bookings created and rejected by service (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "429 responses from the POST /v1/bookings rate limiter (30 requests per 10 s per client IP).",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 8,
+        "y": 55,
+        "w": 8,
+        "h": 8
+      },
+      "id": 18,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum(increase(room_booking_rate_limited_total[5m])) or vector(0)",
+          "legendFormat": "429 responses",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Rate-limited HTTP requests (5m)",
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "prometheus"
+      },
+      "description": "Repeated create requests answered from a stored Idempotency-Key instead of creating a duplicate booking.",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisCenteredZero": false,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "showPoints": "never",
+            "spanNulls": false
+          },
+          "min": 0,
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "x": 16,
+        "y": 55,
+        "w": 8,
+        "h": 8
+      },
+      "id": 19,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "prometheus"
+          },
+          "editorMode": "code",
+          "expr": "sum by (job) (increase(room_booking_idempotent_replays_total[5m]))",
+          "legendFormat": "{{job}}",
+          "range": true,
+          "refId": "A"
+        }
+      ],
+      "title": "Idempotent replays (5m)",
       "type": "timeseries"
     }
   ],
   "refresh": "5s",
   "schemaVersion": 38,
   "style": "dark",
-  "tags": ["assignment-1", "observability", "room-booking"],
-  "templating": {"list": []},
-  "time": {"from": "now-15m", "to": "now"},
+  "tags": [
+    "assignment-2",
+    "observability",
+    "room-booking",
+    "grpc"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-15m",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
   "title": "Room Booking Observability",
   "uid": "room-booking-observability",
-  "version": 1,
+  "version": 2,
   "weekStart": ""
 }

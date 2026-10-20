@@ -36,8 +36,11 @@ def call_api(base_url, method, path, payload=None):
 
 
 def set_fault(base_url, enabled):
-    value = "true" if enabled else "false"
-    status, _ = call_api(base_url, "POST", f"/fault/slow?enabled={value}")
+    # A1 fault: 500 ms delay on every fifth create request.
+    fault = {"delay_ms": 500, "every_nth": 5} if enabled else {}
+    status, _ = call_api(
+        base_url, "PUT", "/v1/admin/faults/create-booking", fault
+    )
     if status != 200:
         raise RuntimeError(f"Could not set fault state: HTTP {status}")
 
@@ -62,7 +65,7 @@ def run_stage(base_url, name, fault_enabled, request_count, interval):
             "room": f"{name[:4]}-{prefix}-{number}",
             "duration_minutes": 60,
         }
-        status, latency = call_api(base_url, "POST", "/bookings", payload)
+        status, latency = call_api(base_url, "POST", "/v1/bookings", payload)
         statuses[str(status)] += 1
         latencies.append(latency)
         time.sleep(interval)

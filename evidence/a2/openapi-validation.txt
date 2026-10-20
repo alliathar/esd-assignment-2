@@ -1,0 +1,2 @@
+$ openapi-spec-validator openapi/openapi.yaml
+openapi/openapi.yaml: OK

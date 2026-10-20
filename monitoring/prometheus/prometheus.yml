@@ -8,6 +8,11 @@ scrape_configs:
       - targets:
           - room-booking-api:8000
 
+  - job_name: room-booking-grpc
+    static_configs:
+      - targets:
+          - room-booking-grpc:9102
+
   - job_name: node-exporter
     static_configs:
       - targets:

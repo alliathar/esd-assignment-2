@@ -1,0 +1,6 @@
+[16:08:14.191] Spec: openapi.yaml (OpenAPI 3.1.0); request built from examples: {'room': 'Study-Room-101-89d6fe', 'duration_minutes': 60}
+[16:08:14.308] PASS valid booking: HTTP 201 documented; body matches #/components/schemas/Booking
+[16:08:14.323] PASS same room again: HTTP 409 documented; body matches #/components/schemas/ErrorResponse
+[16:08:14.356] PASS invalid input: HTTP 422 documented; body matches #/components/schemas/ErrorResponse
+[16:08:14.368] PASS unknown booking: HTTP 404 documented; body matches #/components/schemas/ErrorResponse
+[16:08:14.368] 4/4 checks passed

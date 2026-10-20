@@ -1,219 +1,179 @@
-# Campus Room Booking Observability Project
+# Campus Room Booking — Assignment 2 (HTTP API, gRPC, Metrics)
 
-This project is a small FastAPI service for creating and cancelling campus
-study-room bookings. Its purpose is to demonstrate application metrics,
-business metrics, structured logging, infrastructure monitoring, controlled
-fault injection, and bounded cardinality testing.
+This project extends the Assignment 1 room-booking service (tagged
+`a1-submission` in git; its report is `report-assignment1.md`).
+
+What is new:
+
+- A cleaned-up, versioned HTTP API (`/v1/bookings`) with one error format,
+  an OpenAPI document, `Idempotency-Key` support, and a rate limit.
+- A Python caller with a timeout, retry with backoff, and a circuit breaker.
+- A gRPC version of **create booking** in its own container. It calls the same
+  `booking_core` rules against the same SQLite database as the HTTP API.
+- Prometheus metrics for the gRPC service and a Grafana row comparing HTTP and gRPC.
+
+The A2 report is [`report.md`](report.md).
 
 ## Requirements
 
-- Docker Desktop with Docker Compose v2
-- Python 3.8 or later for the experiment clients
-- Approximately 6 GB free RAM and 4 GB free disk for the Elastic stack
-
-## Start the complete system
-
-From this directory:
+- Docker Desktop with Docker Compose v2 (about 6 GB free RAM for the Elastic stack)
+- Python 3.10+ on the host for the clients and tests:
 
 ```powershell
-docker compose up -d --build
+pip install -r requirements-dev.txt
+```
+
+## Start the system
+
+```powershell
+docker compose up -d --build --wait
 docker compose ps
 ```
 
-Elasticsearch and Kibana can take one or two minutes to become ready on their
-first launch.
-
-| Component | URL | Purpose |
+| Component | URL / address | Purpose |
 |---|---|---|
-| Booking API | <http://localhost:8000/docs> | Create, list, and cancel bookings |
-| Raw application metrics | <http://localhost:8000/metrics> | Prometheus exposition |
-| Prometheus targets | <http://localhost:9090/targets> | Verify scrape health |
-| Grafana | <http://localhost:3000> | Metrics dashboard (`admin` / `admin`) |
-| Node Exporter | <http://localhost:9100/metrics> | Docker Desktop Linux VM metrics |
-| Elasticsearch | <http://localhost:9200/_cat/indices?v> | Log-index inventory |
-| Kibana | <http://localhost:5601/app/discover> | Search structured logs |
+| Booking HTTP API | <http://localhost:8000/docs> | Swagger UI generated from the OpenAPI document |
+| OpenAPI document | <http://localhost:8000/openapi.json> · [`openapi/openapi.yaml`](openapi/openapi.yaml) | API contract |
+| Booking gRPC service | `localhost:50051` | `roombooking.v1.BookingService/CreateBooking` |
+| gRPC service metrics | <http://localhost:9102/metrics> | Scraped by Prometheus as `room-booking-grpc` |
+| Prometheus targets | <http://localhost:9090/targets> | Four targets should be UP |
+| Grafana | <http://localhost:3000> (`admin` / `admin`) | Dashboard **Room Booking Observability** |
+| Kibana | <http://localhost:5601/app/discover> | Logs (data view `room-booking-logs-*`, time field `@timestamp`) |
 
-Grafana automatically provisions the **Room Booking Observability** dashboard.
-The monitored machine named in its resource panels is the **Docker Desktop
-Linux VM**, not the full Windows host.
+Bookings are stored in `/data/bookings.db` on the `booking-data` volume, which
+both booking containers mount. Unlike in A1, bookings survive restarts.
 
-## Use the application
+## HTTP API
 
-Open Swagger at <http://localhost:8000/docs>, or create a booking with
-PowerShell:
+| Method and path | Success | Errors |
+|---|---|---|
+| `POST /v1/bookings` (optional `Idempotency-Key` header) | 201 + `Location` | 409 room occupied, 422 invalid, 429 rate limited, 503 injected fault |
+| `GET /v1/bookings` | 200 | — |
+| `GET /v1/bookings/{id}` | 200 | 404 |
+| `DELETE /v1/bookings/{id}` | 204 | 404 |
+| `GET` / `PUT /v1/admin/faults/create-booking` | 200 | 422 |
+
+Every error looks like:
+
+```json
+{"error": {"code": "room_occupied", "message": "Room already has an active booking",
+           "request_id": "…", "details": []}}
+```
+
+Try it from PowerShell:
 
 ```powershell
-$body = @{
-    room = "Study-Room-101"
-    duration_minutes = 60
-} | ConvertTo-Json
-
-Invoke-RestMethod `
-    -Method Post `
-    -Uri http://localhost:8000/bookings `
-    -ContentType "application/json" `
-    -Body $body
+$body = @{ room = "Study-Room-101"; duration_minutes = 60 } | ConvertTo-Json
+$headers = @{ "Idempotency-Key" = [guid]::NewGuid().ToString() }
+Invoke-WebRequest -Method Post -Uri http://localhost:8000/v1/bookings `
+    -ContentType "application/json" -Body $body -Headers $headers
 ```
 
-Submitting the same room twice returns `409 Conflict`. This is an intentional
-business-rule rejection and appears in both metrics and logs.
+Sending the same request again with the same key returns the same booking
+with `Idempotent-Replayed: true`. Without a key, a second booking for the same
+room returns `409`.
 
-## Generate dashboard traffic
+**Rate limit:** `POST /v1/bookings` accepts 30 requests per 10-second window
+per client IP address. After that it returns `429` with `Retry-After`. You can
+change it with `RATE_LIMIT_REQUESTS` and `RATE_LIMIT_WINDOW_SECONDS` in
+`docker-compose.yml`.
 
-Generate successful creations, duplicate rejections, cancellations, and list
-requests for two minutes:
+**Fault injection** applies to create-booking over both HTTP and gRPC, because
+it is stored in the shared database:
 
 ```powershell
-python experiments\load_test.py --duration 120 --interval 0.5
+# 500 ms delay on every 5th create (the A1 experiment)
+Invoke-RestMethod -Method Put -Uri http://localhost:8000/v1/admin/faults/create-booking `
+    -ContentType "application/json" -Body '{"delay_ms": 500, "every_nth": 5}'
+# remove every fault
+Invoke-RestMethod -Method Put -Uri http://localhost:8000/v1/admin/faults/create-booking `
+    -ContentType "application/json" -Body '{}'
 ```
 
-Set the Grafana time range to **Last 15 minutes** and refresh to **5s**.
+## gRPC service
 
-## Configure Kibana
-
-1. Generate traffic using the command above.
-2. Open <http://localhost:5601/app/management/kibana/dataViews>.
-3. Create a data view named `Room Booking Logs`.
-4. Use index pattern `room-booking-logs-*`.
-5. Select `@timestamp` as the time field.
-6. Open Discover and select the new data view.
-
-The reusable KQL searches are recorded in
-[`monitoring/kibana/queries.md`](monitoring/kibana/queries.md).
-
-## Slow-request experiment
-
-Run all three stages with identical request counts. The script disables the
-fault in a `finally` block and saves client-observed measurements:
+The contract is [`booking_proto/booking.proto`](booking_proto/booking.proto).
+Regenerate the Python code after changing it (the Docker image also does this
+at build time):
 
 ```powershell
-python experiments\anomaly_experiment.py
+python -m grpc_tools.protoc -I . --python_out=. --grpc_python_out=. --pyi_out=. booking_proto/booking.proto
+# same command: scripts\generate_proto.ps1  or  sh scripts/generate_proto.sh
 ```
 
-Default stages:
-
-1. Baseline: 30 normal requests.
-2. Fault: 30 requests with a 500 ms delay on every fifth creation.
-3. Recovery: 30 requests after the fault is removed.
-
-Results are written to `evidence/anomaly-results.json`. Capture the Grafana
-dashboard during each stage. For a longer visible experiment:
+Call it with the Python client (run every client from the project root with `-m`):
 
 ```powershell
-python experiments\anomaly_experiment.py --requests-per-stage 60 --interval 0.5
+python -m clients.grpc_booking_client --room Study-Room-201 --duration 60
+python -m clients.grpc_booking_client --room Study-Room-201 --duration 60   # ALREADY_EXISTS
+python -m clients.grpc_booking_client --room Study-Room-202 --duration 5    # INVALID_ARGUMENT
+python -m clients.grpc_booking_client --room Study-Room-203 --deadline 0.5 --request-id my-trace-1
 ```
 
-## Cardinality experiment
+## Demonstrations (Part A–C evidence)
 
-The experiment is deliberately capped at 100 unique IDs. Never raise the cap
-for this assignment.
+| Command | Shows | Saved output |
+|---|---|---|
+| `python -m clients.http_booking_client --demo --output evidence/a2/http-client-demo.txt` | success, retry after 503, breaker OPEN and blocking, recovery | `evidence/a2/http-client-demo.txt` |
+| `python -m clients.rate_limit_demo --output evidence/a2/rate-limit-demo.txt` | 201s, then 429 + `Retry-After`, then 201 after waiting | `evidence/a2/rate-limit-demo.txt` |
+| `python -m clients.compare_transports --output evidence/a2/transport-comparison.txt` | the same success and failures over HTTP and gRPC; cross-transport conflicts | `evidence/a2/transport-comparison.txt` |
+| `python -m clients.openapi_contract_check --output evidence/a2/openapi-contract-check.txt` | live responses checked against `openapi.yaml` | `evidence/a2/openapi-contract-check.txt` |
+| `python -m clients.grpc_booking_client --demo --rounds 3` | repeatable gRPC successes and failures for the Grafana row | `evidence/a2/grpc-client-demo.txt` |
+| `python experiments\load_test.py --duration 120` | mixed HTTP traffic (A1 script, updated paths) | — |
 
-### Unsafe mode: request ID is a metric label
+The HTTP demo changes the fault configuration and resets it at the end. If you
+stop it part-way, reset the fault with the `PUT … -Body '{}'` command above.
+
+The A1 experiments still work against the new paths:
+`experiments\anomaly_experiment.py` and `experiments\cardinality_test.py`
+(see `report-assignment1.md`).
+
+## Tests
 
 ```powershell
-$env:CARDINALITY_MODE = "unsafe"
-docker compose up -d --force-recreate --wait room-booking-api
-python experiments\cardinality_test.py --count 100
+python -m pytest
 ```
 
-Expected current result:
-
-```promql
-count(demo_requests_total)
-```
-
-```text
-100
-```
-
-### Safe mode: request ID removed from the metric
+The 38 tests cover the shared rules and database, the HTTP API (valid,
+invalid, repeated with and without a key, delete twice, rate limit, error
+format, bounded route label), the gRPC service (success, each error code, the
+deadline, request-ID echo, metrics), the circuit breaker, and the OpenAPI
+document. After changing routes, regenerate the committed spec:
 
 ```powershell
-$env:CARDINALITY_MODE = "safe"
-docker compose up -d --force-recreate --wait room-booking-api
-python experiments\cardinality_test.py --count 100
+python scripts\export_openapi.py
 ```
-
-After another Prometheus scrape, the same query should report one current
-series. Historical unsafe series remain in Prometheus until retention removes
-them; removing a label does not immediately erase history.
-
-Return to the normal default environment:
-
-```powershell
-Remove-Item Env:CARDINALITY_MODE -ErrorAction SilentlyContinue
-docker compose up -d --force-recreate --wait room-booking-api
-```
-
-Request IDs remain in JSON logs, where they can be searched without creating a
-Prometheus time series for every request.
-
-## Persistence and retention
-
-- Bookings are intentionally in memory and disappear when the API restarts.
-- Prometheus data is stored in the `prometheus-data` named volume and retained
-  for seven days.
-- Grafana state is stored in `grafana-data`; the submitted dashboard is also
-  versioned as JSON under `monitoring/grafana/dashboards`.
-- Docker stores application stdout logs using the `json-file` driver and rotates
-  them at three files of 10 MB each.
-- Filebeat tracks its read position in `filebeat-data`.
-- Elasticsearch stores searchable logs in `elasticsearch-data`. This classroom
-  stack does not automatically delete indices; they remain until its volume is
-  intentionally removed.
 
 ## Stop and clean up
 
-Stop containers while preserving monitoring data:
-
 ```powershell
-docker compose down
+docker compose down        # stop; keep bookings, metrics and logs
+docker compose down -v     # also delete all volumes, including booking-data (irreversible)
 ```
-
-Permanently delete all project containers and named data volumes:
-
-```powershell
-docker compose down -v
-```
-
-The `-v` command irreversibly removes Prometheus history, Grafana state,
-Filebeat state, and Elasticsearch logs. The source code and dashboard JSON are
-not deleted.
-
-## Troubleshooting
-
-```powershell
-docker compose ps
-docker compose logs --tail=100 room-booking-api
-docker compose logs --tail=100 prometheus
-docker compose logs --tail=100 filebeat
-docker compose logs --tail=100 elasticsearch
-docker compose logs --tail=100 kibana
-```
-
-If a rate or p95 panel says **No data**, generate new traffic. These panels use
-recent one- or five-minute windows and correctly become empty after traffic
-stops.
 
 ## Project layout
 
 ```text
-app/main.py                         application, metrics, logs, fault controls
-experiments/load_test.py            continuous mixed traffic
-experiments/anomaly_experiment.py   baseline/fault/recovery measurement
-experiments/cardinality_test.py     bounded 100-ID cardinality test
-monitoring/prometheus/              scrape configuration
-monitoring/grafana/                 datasource and dashboard provisioning
-monitoring/filebeat/                Docker log collection and JSON parsing
-monitoring/kibana/queries.md         reproducible KQL searches
-evidence/                            screenshots and measured results
-report.md                            assignment report draft
+booking_core/           shared rules, SQLite repository, fault injector, log/metric helpers
+app/                    FastAPI HTTP API (main.py), error format, rate limiter
+booking_proto/          booking.proto and generated booking_pb2*.py
+grpc_service/           gRPC server and observability interceptor
+clients/                HTTP caller (retry/breaker), gRPC client, demos, OpenAPI check
+experiments/            A1 load, anomaly, and cardinality scripts (updated paths)
+tests/                  pytest suite
+openapi/openapi.yaml    exported OpenAPI 3.1 document
+monitoring/             Prometheus, Grafana, Filebeat, and Kibana configuration
+scripts/                proto generation and OpenAPI export
+evidence/a2/            A2 outputs and screenshots
 ```
 
 ## Credits
 
-The course's **Lab 1: Midnight Launch** was used as a reference for the Docker,
-Prometheus, Grafana, Filebeat, Elasticsearch, and Kibana arrangement. OpenAI
-Codex assisted with scaffolding, debugging, configuration, and documentation;
-all behavior and results should be reviewed and explained by the submitting
-student according to course policy.
+- Assignment 1 and the course's Lab 1: Midnight Launch were the base for the
+  Docker, Prometheus, Grafana, Filebeat, Elasticsearch, and Kibana setup.
+- gRPC Python documentation (grpc.io) for the server, interceptors, deadlines,
+  and status codes; FastAPI documentation for error handlers and OpenAPI.
+- OpenAI Codex helped with the A1 scaffolding. Claude (Anthropic) helped
+  design and write the A2 code, tests, and documentation. All behaviour and
+  results should be reviewed and explained by the submitting student
+  according to course policy.

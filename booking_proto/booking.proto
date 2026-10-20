@@ -1,0 +1,35 @@
+syntax = "proto3";
+
+package roombooking.v1;
+
+// gRPC version of the "book a study room" task. The handler calls the same
+// booking_core repository as POST /v1/bookings, against the same database.
+service BookingService {
+  // Errors:
+  //   INVALID_ARGUMENT    room or duration breaks the booking rules
+  //   ALREADY_EXISTS      the room already has an active booking
+  //   FAILED_PRECONDITION idempotency_key was used with a different request
+  //   UNAVAILABLE         an injected fault (safe to retry with the same key)
+  rpc CreateBooking(CreateBookingRequest) returns (CreateBookingResponse);
+}
+
+message CreateBookingRequest {
+  string room = 1;
+  int32 duration_minutes = 2;
+  // Optional. Repeating a request with the same key and body returns the
+  // original booking instead of creating another one.
+  string idempotency_key = 3;
+}
+
+message Booking {
+  string id = 1;
+  string room = 2;
+  int32 duration_minutes = 3;
+  string created_at = 4;
+}
+
+message CreateBookingResponse {
+  Booking booking = 1;
+  // True when the booking was returned from a stored idempotency key.
+  bool replayed = 2;
+}
